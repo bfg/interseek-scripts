@@ -1,6 +1,72 @@
 =head1 NAME
 
-This package is bunch of handy scripts.
+This project contains set of handy scripts.
+
+=head1 SYNOPSIS
+
+TODO
+
+=head1 SCRIPTS
+
+=head2 brun.sh
+
+TODO
+
+=head2 cssYUI.sh
+
+TODO
+
+=head2 customSyncDeploy.sh
+
+TODO
+
+=head2 jspVersionInfo.sh
+
+TODO
+
+=head2 jsYUI.sh
+
+TODO
+
+=head2 makeWar2.sh
+
+TODO
+
+=head2 mongoPruneCollections.sh
+
+TODO
+
+=head2 mongoRunScript.sh
+
+TODO
+
+=head2 mysqlbackup.sh
+
+TODO
+
+=head2 parallel-run.pl
+
+TODO
+
+=head2 phpVersionInfo
+
+TODO
+
+=head2 phpVersionInfo.pl
+
+TODO
+
+=head2 phpVersionInfo.sh
+
+TODO
+
+=head2 resinPrecompileJSPs.sh
+
+TODO
+
+=head2 websiteCompressStaticContet.sh
+
+TODO
 
 =head1 TODO
 
