@@ -12,4 +12,14 @@ This package is bunch of handy scripts.
 
 =back
 
+=head1 AUTHORS
+
+=over
+
+=item * Brane F. Gracnar
+
+=item * Uros Golja
+
+=back
+
 =cut
