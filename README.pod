@@ -1,0 +1,15 @@
+=head1 NAME
+
+This package is bunch of handy scripts.
+
+=head1 TODO
+
+=over
+
+=item * Proper README
+
+=item * Add some missing perl based scripts.
+
+=back
+
+=cut

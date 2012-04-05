@@ -1,0 +1,8 @@
+Package: ${PACKAGE}
+Version: ${VERSION}
+Section: base
+Priority: optional
+Architecture: all
+Depends: perl, libnet-ldap-perl, libdbi-perl, bash
+Maintainer: brane.gracnar@planet9.si
+Description: interseek-scripts - collection of Interseek scripts (bash/perl/...)

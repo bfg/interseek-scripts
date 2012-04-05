@@ -1,0 +1,74 @@
+#!/bin/sh
+
+PACKAGE_NAME="interseek-scripts"
+PACKAGE_VERSION=""
+BUILD_NO="1"
+
+TMPDIR="/tmp"
+PACKAGE_DROPDIR="/tmp"
+
+die() {
+	echo -e "FATAL: $@"
+	exit 1
+}
+
+parse_pkgversion() {
+	cat "${1}" 2>/dev/null | grep -v '^#' | grep -v '^\s*$' | head -n 1
+}
+
+##############################################
+#                  main                      #
+##############################################
+
+if [ "`id -u`" != "0" ]; then
+	echo "You must be r00t to do that."
+	exit 1
+fi
+
+DESTDIR="${TMPDIR}/${PACKAGE_NAME}"
+PKG="${DESTDIR}"
+PKG_BASEDIR="`pwd`"
+BASEDIR=`readlink -f "${PKG_BASEDIR}/../../"`
+
+# try to parse package version...
+PACKAGE_VERSION=`parse_pkgversion "${BASEDIR}/PACKAGE_VERSION.TXT"`
+test -z "$PACKAGE_VERSION" && die "Undefined package version; does the file PACKAGE_VERSION.TXT exist?"
+
+mkdir -p "${PKG}" || die "Unable to create package directory."
+rm -rf ${PKG}/* || die "Unable cleanup package directory."
+mkdir -p "${PKG}/install" || die "Unable to create package meta directory."
+(
+	# chdir to destination directory...
+	cd "${PKG}" || die "Unable to enter package directory: ${PKG}."
+	
+	echo "Creating package \"$PACKAGE_NAME\" version \"$PACKAGE_VERSION\"."
+
+	# copy binaries
+	mkdir -p usr/bin
+	cp -ra ${BASEDIR}/bin/* usr/bin || die "Unable to install 'binaries'."
+	mkdir -p usr/sbin
+	cp -ra ${BASEDIR}/sbin/* usr/sbin || die "Unable to install 'binaries'."
+
+	# copy shell scripts...
+	mkdir -p usr/lib/interseek
+	cp -ra ${BASEDIR}/lib/interseek/* usr/lib/interseek/
+
+	# remove svn stuff
+	( find . -type d -name '.svn' | xargs rm -rf ) >/dev/null 2>&1
+
+	# create slackware package
+	echo "Copying slackware package metafiles."
+	cp "$PKG_BASEDIR/slack-desc" "install" >/dev/null 2>&1
+	cp "$PKG_BASEDIR/slack-required" "install" >/dev/null 2>&1
+	cp "$PKG_BASEDIR/doinst.sh" "install" >/dev/null 2>&1
+	echo "Creating slackware package."
+	chown -R root:root . >/dev/null 2>&1
+	makepkg -l y -c n "${PACKAGE_DROPDIR}/${PACKAGE_NAME}-${PACKAGE_VERSION}-noarch-${BUILD_NO}.tgz" || die "Error executing makepkg(8)."
+
+	echo "Package dropped in: ${PACKAGE_DROPDIR}"
+)
+
+echo "Cleaning up..."
+rm -rf "${DESTDIR}" >/dev/null 2>&1
+
+# EOF
