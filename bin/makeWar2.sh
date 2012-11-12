@@ -818,7 +818,7 @@ war_deploy_local() {
 	local word_root=$(echo "${dst}" | perl -p -e 's/(.*)-[\w\.]+/$1/g')
 	local parent=$(dirname "${dst}")
 	local f=$(basename "${dst}")
-	local symlink="${word_root}.${suffix}.latest"
+	local symlink="${word_root}.latest.${suffix}"
 	if [ "${f}" != "${symlink}" ]; then
 		msg_verbose "Installing symlink: ${symlink} => ${dst}"
 		( cd "${parent}" && ln -fs "${f}" "${symlink}" )
