@@ -513,7 +513,7 @@ WWW_PASSWORD=""
 #                            FUNCTIONS                              #
 #####################################################################
 
-VERSION="2.08";
+VERSION="2.09";
 MYNAME=$(basename $0)
 TO_CLEANUP=""
 NO_CLEANUP="0"
@@ -814,11 +814,11 @@ war_deploy_local() {
 	fi
 
 	# create LATEST symlink...
-	local suffix=$(echo "${dst}" | perl -p -e 's/(.+)\.([a-z\0-9]{3})$/$2/g')
-	local word_root=$(echo "${dst}" | perl -p -e 's/^(.+?)-\d+.+/$1/g')
+	local suffix=$(echo "${dst}" | perl -p -e 's/(.+)\.([a-z\0-9]{3,8})$/$2/g')
+	local word_root=$(echo "${dst}" | perl -p -e 's/(.*)-[\w\.]+/$1/g')
 	local parent=$(dirname "${dst}")
 	local f=$(basename "${dst}")
-	local symlink="${word_root}-latest.${suffix}"
+	local symlink="${word_root}.${suffix}.latest"
 	if [ "${f}" != "${symlink}" ]; then
 		msg_verbose "Installing symlink: ${symlink} => ${dst}"
 		( cd "${parent}" && ln -fs "${f}" "${symlink}" )
