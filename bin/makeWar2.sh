@@ -62,7 +62,7 @@
 
 # Webapp build type
 #
-# Possible values: maven, static
+# Possible values: maven, static, make, grunt
 #
 # Type: string
 # Default: "static"
@@ -652,22 +652,13 @@ webapp_build_config_write() {
 	return 0
 }
 
-build_type() {
-	case ${BUILD_TYPE} in
-		maven|mvn)
-			echo "mvn"
-			;;
-		static)
-			echo "static"
-			;;
-		make)
-			echo "make"
-			;;
-		*)
-			echo "unknown"
-			;;
-	esac
-	return 0
+build_type_func() {
+	local fn="webapp_build_${BUILD_TYPE}"
+	if type "${fn}" | head -n1 | grep -q ' function'; then
+		echo "${fn}"
+	else
+		echo "webapp_build_unknown"
+	fi
 }
 
 webapp_build() {
@@ -689,7 +680,7 @@ webapp_build() {
 	file="${WEBAPP_TMP}/${file}"
 
 	# how to build it?
-	func="webapp_build_"$(build_type)
+	func=$(build_type_func)
 	
 	# run webapp build function
 	${func} "${dir}" "${file}"
@@ -795,8 +786,47 @@ webapp_build_static() {
 	return 0
 }
 
+webapp_build_grunt() {
+	local dir="${1}"
+	local final_file="${2}"
+	local cwd=$(pwd)
+
+	# do we have node_modules dir?
+	if [ ! -e "$dir/node_modules" ]; then
+		local nm_ok=0
+		local d=
+		for d in /usr/lib /usr/local/lib "$HOME"; do
+			test -d "$d/node_modules" -a -r "$d/node_modules" || continue
+			ln -fs "$d/node_modules" "$dir/node_modules" || continue
+			msg_verbose "Created node_modules symlink to $dir/node_modules"
+			nm_ok=1
+			break
+		done
+		test "$nm_ok" = "1" || msg_warn "Couldn't find node_modules dir on a system."
+	fi
+
+	# perform grunt build
+	msg_info "Running ${TERM_LRED}GRUNT${TERM_RESET} build."
+	( cd "$dir" && grunt build ) || {
+		error_set "Grunt build failed."
+		return 1
+	}
+
+	# check for dist dir...
+	test -d "$dir/dist" && ls "$dir/dist/"* >/dev/null 2>&1 || {
+		error_set "Grunt build didn't result in non-empty dist directory."
+		return 1
+	}
+
+	# create archive
+	archive_create "${dir}/dist" "${final_file}" || return 1
+	msg_info "Grunt build was ${TERM_LGREEN}successful${TERM_RESET}."
+
+	return 0
+}
+
 webapp_build_unknown() {
-	error_set "Invalid setting \${BUILD_TYPE}: unsupported buil type: '${BUILD_TYPE}'."
+	error_set "Invalid setting \${BUILD_TYPE}: unsupported build type: '${BUILD_TYPE}'."
 	return 1
 }
 
