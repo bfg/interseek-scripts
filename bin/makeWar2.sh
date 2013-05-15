@@ -513,7 +513,7 @@ WWW_PASSWORD=""
 #                            FUNCTIONS                              #
 #####################################################################
 
-VERSION="2.09";
+VERSION="2.10";
 MYNAME=$(basename $0)
 TO_CLEANUP=""
 NO_CLEANUP="0"
