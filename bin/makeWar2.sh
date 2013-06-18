@@ -704,7 +704,7 @@ webapp_build() {
 	return 0
 }
 
-webapp_build_mvn() {
+webapp_build_maven() {
 	local dir="${1}"
 	local final_file="${2}"
 	
