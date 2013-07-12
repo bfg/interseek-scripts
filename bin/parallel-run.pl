@@ -52,6 +52,7 @@ my $required_exit_code = 0;
 my $stderr = 0;
 my $re_stderr = undef;
 my $re_stdout = undef;
+my $log_msg_prefix = '[%Y/%m/%d %H:%M:%S] (%{key}): ';
 
 #########################################################
 #                      FUNCTIONS                        #
@@ -228,7 +229,13 @@ sub proc_stderr {
 
 sub msg_write {
 	my ($key, $str) = @_;
-	my $msg = strftime("[%Y/%m/%d %H:%M:%S]", localtime(time())) . " ($key): " . $str;
+	my $pfx = $log_msg_prefix;
+	if (defined $pfx && length $pfx) {
+		$pfx = strftime($log_msg_prefix, localtime(time()));
+		$pfx =~ s/%{key}/$key/g;
+	}
+
+	my $msg = $pfx . $str;
 	
 	# print to common stdout?
 	if ($common_msglog) {
@@ -427,6 +434,7 @@ OPTIONS:
   --stdout-re=/REGEX/flags Stdout output regex
   --stderr-re=/REGEX/flags Stderr output regex
   
+  --log-msg-pfx=PATT       Log message prefix (Default: "$log_msg_prefix")
   --no-log-stream          Perform per-line spawned program logging
   --log-per-line           (Don't use this option unless you know what you're doing.)
   
@@ -488,6 +496,7 @@ my $g = GetOptions(
 	'stdout-re=s' => sub {
 		$_re_stdout = regex_compile($_[1]);		
 	},
+	'log-msg-pfx:s' => \ $log_msg_prefix,
 	'log-stream!' => \ $log_stream,
 	'log-per-line' => sub { $log_stream = 0 },
 	'common-log!' => \$common_msglog,
