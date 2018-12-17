@@ -53,23 +53,9 @@ cat <<EOF
 <%@page
 	 session="false"
 	 pageEncoding="UTF-8"
-	 import="java.util.Map"
-	 import="java.util.Date"
 	 import="java.util.*"
 	 import="java.io.*"
-	 import="java.io.OutputStreamWriter"
 	 import="java.nio.charset.Charset" %><%
-
-/**
- * : jspVersionInfo.sh 1444 2009-10-25 22:43:43Z bfg $
- * : 2009-10-25 23:43:43 +0100 (Sun, 25 Oct 2009) $
- * : bfg $
- * : 1444 $
- * : 1444 $
- * : bfg $
- * : 2009-10-25 23:43:43 +0100 (Sun, 25 Oct 2009) $
- * : https://svn.interseek.com/repositories/admin/interseek-scripts/trunk/bin/jspVersionInfo.sh $
- */
 
 String hostname = "unknown";			// hostname of machine running this jsp
 String ip = "unknown";	  // host's ip address
@@ -137,7 +123,58 @@ for (int j = 0; j < files.length; j++) {
 	 } else {
 	out.println("<b>Missing file " + file + "</b>");
 	 }
-} %></div></pre>
+} %></div></pre><%
+// do we have git.properties somewhere?
+String gitPropFiles[] = {
+  "WEB-INF/git.properties",
+  "WEB-INF/classes/git.properties"
+};
+
+// try to load git properties...
+Properties gitProps = null;
+for (int j = 0; j < gitPropFiles.length; j++) {
+  String file = gitPropFiles[j];
+  File f = new File(application.getRealPath(file));
+  if (! (f.exists() && f.isFile() && f.canRead())) continue;
+
+  try {
+    gitProps = new Properties();
+    gitProps.load(new InputStreamReader(new FileInputStream(f), Charset.forName("UTF-8")));
+    break;
+  }
+  catch (Exception e) {
+    gitProps = null;
+  };
+}
+
+// print git props if any
+if (gitProps != null) {%>
+<b>GIT SCM info (<%= gitProps.size() %> defined properties)</b>
+<div class="list">
+         <table summary="GIT SCM info" cellpadding="0" cellspacing="0">
+        <thead>
+          <tr>
+         <th class="n">Key</th>
+         <th class="m">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+<%
+         Enumeration e = gitProps.propertyNames();
+         Vector v = new Vector();
+         while (e.hasMoreElements())
+           v.add(e.nextElement());
+
+         Object a[] = v.toArray();
+         Arrays.sort(a);
+         int len = a.length;
+         for (int i = 0; i < len; i++) { %>
+         <tr><td class='n'><%= a[i] %></td><td class='m'><%= gitProps.getProperty(a[i].toString()).replace("\n", "<br/>\n") %></td></tr>
+         <% } %>
+        </tbody>
+         </table>
+</div>
+<% } %>
 <!-- container info -->
 <b>Container info</b>
 <div class="list">
@@ -316,6 +353,10 @@ Properties p = System.getProperties();
 <div class="foot">Copyright (C) bfg@najdi.si</div>
 </body>
 </html>
+
+<!--
+  vim:shiftwidth=2 softtabstop=2 expandtab
+-->
 EOF
 }
 
